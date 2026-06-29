@@ -1,5 +1,8 @@
 package com.example.AppBackend.service;
 
+import com.example.AppBackend.dto.CreateOptionRequest;
+import com.example.AppBackend.dto.CreateQuestionRequest;
+import com.example.AppBackend.dto.CreateTestRequest;
 import com.example.AppBackend.dto.SubmitTestRequest;
 import com.example.AppBackend.dto.UserAnswer;
 import com.example.AppBackend.entity.Option;
@@ -7,13 +10,17 @@ import com.example.AppBackend.entity.Question;
 import com.example.AppBackend.entity.Test;
 import com.example.AppBackend.entity.TestResult;
 import com.example.AppBackend.entity.TestSession;
+import com.example.AppBackend.exception.ResourceConflictException;
 import com.example.AppBackend.exception.ResourceNotFoundException;
 import com.example.AppBackend.repository.TestRepository;
 import com.example.AppBackend.repository.TestResultRepository;
 import com.example.AppBackend.repository.TestSessionRepository;
+import com.example.AppBackend.security.CurrentUserService;
+import com.example.AppBackend.util.EntityIds;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,13 +32,16 @@ public class TestService {
     private final TestRepository testRepository;
     private final TestSessionRepository testSessionRepository;
     private final TestResultRepository testResultRepository;
+    private final CurrentUserService currentUserService;
 
     public TestService(TestRepository testRepository,
                        TestSessionRepository testSessionRepository,
-                       TestResultRepository testResultRepository) {
+                       TestResultRepository testResultRepository,
+                       CurrentUserService currentUserService) {
         this.testRepository = testRepository;
         this.testSessionRepository = testSessionRepository;
         this.testResultRepository = testResultRepository;
+        this.currentUserService = currentUserService;
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +50,41 @@ public class TestService {
     }
 
     @Transactional
+    public Test createTest(CreateTestRequest request) {
+        String testId = request.testId();
+        if (testRepository.existsById(testId)) {
+            throw new ResourceConflictException("Test already exists with id: " + testId);
+        }
+
+        List<Question> questions = new ArrayList<>();
+
+        for (int questionIndex = 0; questionIndex < request.questions().size(); questionIndex++) {
+            CreateQuestionRequest questionRequest = request.questions().get(questionIndex);
+            int questionNumber = questionIndex + 1;
+            String questionId = EntityIds.questionId(testId, questionNumber);
+            List<Option> options = new ArrayList<>();
+
+            for (int optionIndex = 0; optionIndex < questionRequest.options().size(); optionIndex++) {
+                CreateOptionRequest optionRequest = questionRequest.options().get(optionIndex);
+                options.add(new Option(
+                        EntityIds.optionId(testId, questionNumber, optionIndex + 1),
+                        optionRequest.text(),
+                        optionRequest.weight()
+                ));
+            }
+
+            questions.add(new Question(questionId, questionRequest.text(), options));
+        }
+
+        Test test = new Test(testId, request.version(), request.title(), questions);
+        Test saved = testRepository.save(test);
+        return loadTestBlueprint(saved.getId());
+    }
+
+    @Transactional
     public TestResult submitTest(SubmitTestRequest request) {
+        currentUserService.requireMatchingUserId(request.userId());
+
         Test test = loadTestBlueprint(request.testId());
 
         String sessionId = UUID.randomUUID().toString();
