@@ -22,7 +22,7 @@ public class UserService {
             throw new ResourceConflictException("User already exists with id: " + request.userId());
         }
 
-        User user = new User(request.userId(), request.role());
+        User user = new User(request.userId(), null, request.role());
         return userRepository.save(user);
     }
 }

@@ -25,6 +25,9 @@ public class User {
     @Column(name = "user_id")
     private UUID id;
 
+    @Column(nullable = true)
+    private String username;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;

@@ -24,6 +24,11 @@ public class AuthProperties {
         private String baseUrl = "http://localhost:8081";
 
         /**
+         * Auth API registration endpoint.
+         */
+        private String registerEndpoint = "/register";
+
+        /**
          * Shared secret for service-to-service calls from Auth API.
          */
         private String internalApiKey = "";
@@ -34,6 +39,14 @@ public class AuthProperties {
 
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
+        }
+
+        public String getRegisterEndpoint() {
+            return registerEndpoint;
+        }
+
+        public void setRegisterEndpoint(String registerEndpoint) {
+            this.registerEndpoint = registerEndpoint;
         }
 
         public String getInternalApiKey() {
