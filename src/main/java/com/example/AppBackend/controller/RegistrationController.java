@@ -32,9 +32,9 @@ public class RegistrationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Register a new user", description = "Creates a new AppBackend user by forwarding email/password to the Auth API, then storing the returned userid, role and username locally.")
+    @Operation(summary = "Register a new user", description = "Creates a user by forwarding email/password to the Auth API, then storing the returned userid, role and username locally.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "User registered successfully"),
+            @ApiResponse(responseCode = "200", description = "User registered successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid registration data", content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "409", description = "User already exists", content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })

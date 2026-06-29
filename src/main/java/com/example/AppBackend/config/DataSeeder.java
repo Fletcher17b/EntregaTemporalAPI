@@ -34,12 +34,22 @@ public class DataSeeder implements CommandLineRunner {
         if (userRepository.count() > 0 || testRepository.count() > 0) {
             return;
         }
-
-        userRepository.saveAll(List.of(
-                new User(ADMIN_USER_ID, Role.ADMIN),
-                new User(USER_ONE_ID, Role.USER),
-                new User(USER_TWO_ID, Role.USER)
-        ));
+        User admin = new User();
+        admin.setId(ADMIN_USER_ID);
+        admin.setUsername("admin");
+        admin.setRole(Role.ADMIN);
+        
+        User user1 = new User();
+        user1.setId(USER_ONE_ID);
+        user1.setUsername("user1");
+        user1.setRole(Role.USER);
+        
+        User user2 = new User();
+        user2.setId(USER_TWO_ID);
+        user2.setUsername("user2");
+        user2.setRole(Role.USER);
+        
+        userRepository.saveAll(List.of(admin, user1, user2));
 
         testRepository.saveAll(List.of(
                 buildWellnessTest(),

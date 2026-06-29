@@ -48,7 +48,8 @@ public class RegistrationService {
     }
 
     private AuthRegisterResponse callAuthApi(RegisterRequest request) {
-        String url = authProperties.getApi().getBaseUrl() + authProperties.getApi().getRegisterEndpoint();
+       String url = authProperties.getApi().getBaseUrl() + "/register_poo";
+    
         Map<String, String> authRequest = Map.of(
                 "email", request.email(),
                 "password", request.password()
