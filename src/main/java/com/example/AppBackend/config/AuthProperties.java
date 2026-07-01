@@ -26,7 +26,7 @@ public class AuthProperties {
         /**
          * Auth API registration endpoint.
          */
-        private String registerEndpoint = "/register";
+        private String registerEndpoint = "/register_poo";
 
         /**
          * Shared secret for service-to-service calls from Auth API.
